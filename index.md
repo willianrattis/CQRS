@@ -33,7 +33,7 @@ Pensando desta forma, quando sabemos o que é **CQRS**, parece até óbvio, afin
 
 Particularmente, vejo que na maioria dos casos temos mais leitura do que escrita, como um exemplo de um **_E-Comerce_**, onde navegamos por horas (Leitura apenas) e só fechamos o pedido uma vez (Escrita).
 
->  #### Primeiro Problema a ser combatido 
+>#### Primeiro Problema a ser combatido 
 >
 > _Alguém já viu uma aplicação que **busca todos os dados no  banco**, depois faz um `new` e cria um objeto novo para filtrar estes dados em memória e depois devolve para o cliente?_
 >
@@ -268,7 +268,7 @@ using  System.Threading;
   
 namespace  ECommerce.Domain.Handlers
 {
-	public  class  CriarClienteHandler : IRequestHandler<CriarClienteRequest>
+	public  class  CriarClienteHandler : IRequestHandler<CriarClienteRequest, CriarClienteResponse>
 	{
 		public Task<CriarClienteResponse> Handle(CriarClienteRequest request,
 			CancellationToken cancellationToken)
