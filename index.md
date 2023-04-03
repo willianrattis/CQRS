@@ -31,14 +31,14 @@ Pensando desta forma, quando sabemos o que é **CQRS**, parece até óbvio, afin
 
 	E-Comerce é um bom cenário para a utilização de CQRS
 
-Particularmente, vejo que na maioria dos casos temos mais leitura do que escrita, como um exemplo de um **_E-Comerce_**, onde navegamos por horas (Leitura apenas) e só fechamos o pedido uma vez (Escrita).
+Particularmente vejo que na maioria dos casos temos mais leitura do que escrita, como o exemplo de um **_E-Comerce_**, onde navegamos por horas (Leitura apenas) e só fechamos o pedido uma vez (Escrita).
 
 >#### Primeiro Problema a ser combatido 
 >
 > _Alguém já viu uma aplicação que **busca todos os dados no  banco**, depois faz um `new` e cria um objeto novo para filtrar estes dados em memória e depois devolve para o cliente?_
 >
-> - Vai utilizar mais infraestrutura 
-> - Vai utilizar mais processamento e memória 
+> - Utiliza mais infraestrutura 
+> - Utiliza mais processamento e memória 
 
 
 
@@ -90,25 +90,25 @@ A resposta para essa pergunta é SIM. O **MediatR** é apenas um padrão para ab
 
 Primeiro nós precisaríamos resgistrar o nosso serviço no contêiner de injeção de dependências do asp.net core indicando que `CriarClienteHandler` resolve a interface `ICriarClienteHandler`
 ```csharp
-public  void  ConfigureServices(IServiceCollection  services)
+public void ConfigureServices(IServiceCollection services)
 {
-	services.AddControllers();
-	services.AddTransient<ICriarClienteHandler, CriarClienteHandler>();
+    services.AddControllers();
+    services.AddTransient<ICriarClienteHandler, CriarClienteHandler>();
 }
 ```
 
 Criaremos o nosso request, digamos que nosso comando enviará **nome** e **e-mail**. 
 
 ```csharp
-using  System;
+using System;
 
-namespace  ECommerce.Domain.Commands.Requests
+namespace ECommerce.Domain.Commands.Requests
 {
-	public  class  CriarClienteRequest
-	{
-		public  string  Nome { get; set; }
-		public  string  Email { get; set; }
-	}
+    public class CriarClienteRequest
+    {
+        public string Nome { get; set; }
+        public string Email { get; set; }
+    }
 }
 ```
 
@@ -119,46 +119,46 @@ using System;
 
 namespace ECommerce.Domain.Commands.Responses
 {
-	public class CriarClienteResponse
-	{
-		public Guid Id { get; set; }
-		public string Nome { get; set; }
-		public string Email { get; set; }
-		public DateTime Date { get; set; }
-	}
+    public class CriarClienteResponse
+    {
+        public Guid Id { get; set; }
+        public string Nome { get; set; }
+        public string Email { get; set; }
+        public DateTime Date { get; set; }
+    }
 }
 ```
 
 Criaremos o nosso **handler** que irá capturar a nossa **request**. E aqui está uma parte importante, vale ressaltar que seria muito mais cômodo do que validar nossas **entidade** seja validar os nossos **comandos**. 
 
 ```csharp
-using  System;
-using  ECommerce.Domain.Commands.Responses;
-using  ECommerce.Domain.Commands.Requests;
-using  MediatR;
-using  System.Threading.Tasks;
-using  System.Threading;
+using System;
+using ECommerce.Domain.Commands.Responses;
+using ECommerce.Domain.Commands.Requests;
+using MediatR;
+using System.Threading.Tasks;
+using System.Threading;
   
-namespace  ECommerce.Domain.Handlers
+namespace ECommerce.Domain.Handlers
 {
-	public  class  CriarClienteHandler : ICriarClienteHandler
-	{
-		public  CriarClienteResponse  Handle(CriarClienteRequest  request)
-		{
-			// Verifica se o Cliente já esta cadastrado
-			// Valida os dados
-			// Insere o cliente
-			// Enviar E-mail de boas vindas
+    public class CriarClienteHandler : ICriarClienteHandler
+    {
+        public CriarClienteResponse Handle(CriarClienteRequest request)
+        {
+            // Verifica se o Cliente já esta cadastrado
+            // Valida os dados
+            // Insere o cliente
+            // Enviar E-mail de boas vindas
 
-			return  new  CriarClienteResponse
-			{
-				Id = Guid.NewGuid(),
-				Nome =  "Willian",
-				Email =  "willian.rattis@email.com",
-				Date = DateTime.Now
-			};
-		}
-	}
+            return new CriarClienteResponse
+            {
+                Id = Guid.NewGuid(),
+                Nome = "Willian",
+                Email = "willian.rattis@email.com",
+                Date = DateTime.Now
+            };
+        }
+    }
 }
 ```
 
@@ -170,28 +170,27 @@ Sem utilizar o **MediatR** nós teríamos que ligar o **handler** diretamente ao
 >_Estaremos utilizando o `[FromServices]` para fazer a injeção de dependência, mas nada nos impediria de útilizar o método padrão via `Construtor` ._
 
 ```csharp
-using  Microsoft.AspNetCore.Mvc;
-using  ECommerce.Domain.Commands.Requests;
-using  ECommerce.Domain.Handlers;
+using Microsoft.AspNetCore.Mvc;
+using ECommerce.Domain.Commands.Requests;
+using ECommerce.Domain.Handlers;
 
-namespace  ECommerce.Controllers
+namespace ECommerce.Controllers
 {
-	[ApiController]
-	[Route("clientes")]
-	public  class  ClienteController : ControllerBase
-	{
-	
-		[HttpPost]
-		[Route("cadastrar")]
-		public  IActionResult  Create(
-			[FromServices]ICriarClienteHandler handler,
-			[FromBody]CriarClienteRequest command)
-		{
-			var  response  = handler.Handle(command);
-				
-			return  Ok(response);
-		}
-	}
+    [ApiController]
+    [Route("clientes")]
+    public class ClienteController : ControllerBase
+    {
+        [HttpPost]
+        [Route("cadastrar")]
+        public IActionResult Create(
+            [FromServices]ICriarClienteHandler handler,
+            [FromBody]CriarClienteRequest command)
+        {
+            var response = handler.Handle(command);
+                
+            return Ok(response);
+        }
+    }
 }
 ```
 
@@ -213,25 +212,25 @@ dotnet add package **MediatR.Extensions.Microsoft.DependencyInjection** --versio
 Segundo passo é que utilizando o **MediatR** nós não temos mais a necessidade de resolver aquela Interface `ICriarClienteHandler`, utilizando apenas o `services.AddMediatR()`.
 
 ```csharp
-public  void  ConfigureServices(IServiceCollection  services)
+public void ConfigureServices(IServiceCollection services)
 {
-	services.AddControllers();
-	services.AddMediatR(Assembly.GetExecutingAssembly());
+    services.AddControllers();
+    services.AddMediatR(Assembly.GetExecutingAssembly());
 }
 ```
 
 Vamos implementar a interface `IRequest<T>` do **MediatR** no nosso request.
  
 ```csharp
-using  System;
+using System;
 
-namespace  ECommerce.Domain.Commands.Requests
+namespace ECommerce.Domain.Commands.Requests
 {
-	public  class  CriarClienteRequest : IRequest<CriarClienteResponse>
-	{
-		public  string  Nome { get; set; }
-		public  string  Email { get; set; }
-	}
+    public class CriarClienteRequest : IRequest<CriarClienteResponse>
+    {
+        public string Nome { get; set; }
+        public string Email { get; set; }
+    }
 }
 ```
 
@@ -242,13 +241,13 @@ using System;
 
 namespace ECommerce.Domain.Commands.Responses
 {
-	public class CriarClienteResponse
-	{
-		public Guid Id { get; set; }
-		public string Nome { get; set; }
-		public string Email { get; set; }
-		public DateTime Date { get; set; }
-	}
+    public class CriarClienteResponse
+    {
+        public Guid Id { get; set; }
+        public string Nome { get; set; }
+        public string Email { get; set; }
+        public DateTime Date { get; set; }
+    }
 }
 ```
 
@@ -259,36 +258,36 @@ No nosso **Handler** deixaremos de utilizar nossa interface `ICriarClienteHandle
 
 
 ```csharp
-using  System;
-using  ECommerce.Domain.Commands.Responses;
-using  ECommerce.Domain.Commands.Requests;
-using  MediatR;
-using  System.Threading.Tasks;
-using  System.Threading;
-  
-namespace  ECommerce.Domain.Handlers
-{
-	public  class  CriarClienteHandler : IRequestHandler<CriarClienteRequest, CriarClienteResponse>
-	{
-		public Task<CriarClienteResponse> Handle(CriarClienteRequest request,
-			CancellationToken cancellationToken)
-		{
-			// Verifica se o Cliente já esta cadastrado
-			// Valida os dados
-			// Insere o cliente
-			// Enviar E-mail de boas vindas
+using System;
+using ECommerce.Domain.Commands.Responses;
+using ECommerce.Domain.Commands.Requests;
+using MediatR;
+using System.Threading.Tasks;
+using System.Threading;
 
-			var resultado = new  CriarClienteResponse
-			{
-				Id = Guid.NewGuid(),
-				Nome =  "Willian",
-				Email =  "willian.rattis@email.com",
-				Date = DateTime.Now
-			};
-			
-			return Task.FromResult(resultado)
-		}
-	}
+namespace ECommerce.Domain.Handlers
+{
+    public class CriarClienteHandler : IRequestHandler<CriarClienteRequest, CriarClienteResponse>
+    {
+        public Task<CriarClienteResponse> Handle(CriarClienteRequest request,
+            CancellationToken cancellationToken)
+        {
+            // Verifica se o Cliente já esta cadastrado
+            // Valida os dados
+            // Insere o cliente
+            // Enviar E-mail de boas vindas
+
+            var resultado = new CriarClienteResponse
+            {
+                Id = Guid.NewGuid(),
+                Nome = "Willian",
+                Email = "willian.rattis@email.com",
+                Date = DateTime.Now
+            };
+
+            return Task.FromResult(resultado);
+        }
+    }
 }
 ```
 
